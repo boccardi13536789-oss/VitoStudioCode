@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+
+<SCRIPT LANGUAGE="JavaScript">
+
+var max = 7;
+var cur = 1;
+var listafoto = new array()
+function Visualizza() {
+
+    // Mostra la foto principale
+    galleria.foto.src = "foto/foto" + cur + ".jpg";
+
+    // Aggiorna il contatore
+    galleria.conta.value = "Foto: " + cur + " di " + max;
+
+    // Mostra l'anteprima della foto successiva
+    if (cur < max) {
+        galleria.anteprima.src = "foto/foto" + (cur + 1) + ".jpg";
+        galleria.anteprima.style.display = "inline";
+    } else {
+        // Se siamo sull'ultima foto, nascondi l'anteprima
+        galleria.anteprima.style.display = "none";
+    }
+}
+
+
+function SuccPage() {
+
+    if (cur < max) {
+        cur = cur + 1;
+        Visualizza();
+    } else {
+        alert("Sei arrivato al massimo delle foto");
+    }
+
+}
+
+
+function UltimaFoto() {
+
+    cur = max;
+    Visualizza();
+
+}
+
+
+function PrevPage() {
+
+    if (cur > 1) {
+        cur = cur - 1;
+        Visualizza();
+    } else {
+        alert("Sei arrivato alla prima foto");
+    }
+
+}
+
+</SCRIPT>
+
+</HEAD>
+
+<BODY>
+
+<form name="galleria">
+
+    
+    <div style="text-align: center;">
+
+        <img name="foto"
+             src="foto/foto1.jpg"
+             height="200"
+             width="300">
+
+        <br><br>
+
+        
+		<div style="text-align: right;">
+        <span>Prossima foto:</span>
+        <br>
+
+        <img name="anteprima"
+             src="foto/foto2.jpg"
+             height="50"
+             width="75">
+
+        <br><br>
+
+        
+        <INPUT TYPE="button"
+               VALUE="Precedente"
+               ONCLICK="PrevPage()">
+
+        <input type="text"
+               name="conta"
+               value="Foto: 1 di 7"
+               disabled>
+
+        <INPUT TYPE="button"
+               name="succ"
+               VALUE="Prossima"
+               ONCLICK="SuccPage()">
+
+        <br><br>
+
+        <INPUT TYPE="button"
+               VALUE="Ultima foto"
+               ONCLICK="UltimaFoto()">
+
+    </div>
+
+</form>
+
+</BODY>
+</HTML>
