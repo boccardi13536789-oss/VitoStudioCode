@@ -1,0 +1,269 @@
+<html>
+<head>
+<script language="JavaScript">
+
+var Ordini = new Array();
+
+function Ordine(myProdotto, myPrezzoUnitario, myQuantita, myVarianti)
+{
+    this.Prodotto = myProdotto;
+    this.PrezzoUnitario = myPrezzoUnitario;
+    this.Quantita = myQuantita;
+    this.Totale = 0;
+    this.Note = "";
+	this.Varianti = myVarianti;
+	this.VarianteScelta = 0;
+}
+
+function CaricaDati()
+{
+    Ordini[0] = new Ordine("Panino al prosciutto", 2.00, 0, [
+        { nome: "Piccolo", prezzo: 2.00 },
+        { nome: "Medio", prezzo: 2.50 },
+        { nome: "Grande", prezzo: 3.00 }]);
+
+    Ordini[1] = new Ordine("Panino al salame", 2.00, 0, [
+        { nome: "Piccolo", prezzo: 2.00 },
+        { nome: "Medio", prezzo: 2.50 },
+        { nome: "Grande", prezzo: 3.00 }]);
+
+    Ordini[2] = new Ordine("Panino al tonno", 3.00, 0, [
+        { nome: "Piccolo", prezzo: 2.00 },
+        { nome: "Medio", prezzo: 2.50 },
+        { nome: "Grande", prezzo: 3.00 }]);
+
+    Ordini[3] = new Ordine("Cornetto pan di stelle", 1.20, 0, [
+        { nome: "Normale", prezzo: 1.20 },
+        { nome: "Extra-farcito", prezzo: 2.50 }]);
+
+    Ordini[4] = new Ordine("Cornetto marmellata", 1.20, 0, [
+        { nome: "Normale", prezzo: 1.20 },
+        { nome: "Extra-marmellata", prezzo: 2.50 }]);
+
+    Ordini[5] = new Ordine("Coca Cola", 1.50, 0, [
+        { nome: "Media", prezzo: 1.50 },
+        { nome: "Large", prezzo: 2.50 }]);
+}
+
+function ScriviTabella()
+{
+var Tabella = document.getElementById("elenco");
+
+    for (var i = 0; i < Ordini.length; i++)
+    {
+        // CREA UNA NUOVA RIGA
+        var riga = Tabella.insertRow(-1);
+
+        // CREA LE 6 CELLE
+        var cell1 = riga.insertCell(0); // Prodotto
+        var cell2 = riga.insertCell(1); // Variante
+        var cell3 = riga.insertCell(2); // Prezzo
+        var cell4 = riga.insertCell(3); // Quantita
+        var cell5 = riga.insertCell(4); // Totale
+        var cell6 = riga.insertCell(5); // Note
+
+        // NOME DEL PRODOTTO
+        cell1.innerHTML = Ordini[i].Prodotto;
+
+        // MENU A TENDINA DELLE VARIANTI
+        var menu = "<select id='variante_" + i +
+                   "' onchange='AggiornaVariante(" + i + ")'>";
+
+        for (var j = 0; j < Ordini[i].Varianti.length; j++)
+        {
+            menu += "<option value='" + j + "'>" +
+                    Ordini[i].Varianti[j].nome +
+                    "</option>";
+        }
+
+        menu += "</select>";
+
+        cell2.innerHTML = menu;
+
+        // PREZZO UNITARIO INIZIALE
+        Ordini[i].PrezzoUnitario =
+            Ordini[i].Varianti[0].prezzo;
+
+        cell3.innerHTML =
+            "<span id='prezzo_" + i + "'>" +
+            Ordini[i].PrezzoUnitario.toFixed(2) +
+            " €</span>";
+
+        // CAMPO QUANTITA
+        cell4.innerHTML =
+            "<input type='number' min='0' step='1' " +
+            "id='qta_" + i + "' value='0' " +
+            "onchange='AggiornaQuantita(" + i + ")'>";
+
+        // CAMPO TOTALE DEL PRODOTTO
+        cell5.innerHTML =
+            "<input type='text' id='totale_" + i +
+            "' value='0.00' readonly>";
+
+        // CAMPO NOTE
+        cell6.innerHTML =
+            "<input type='text' id='note_" + i +
+            "' onchange='AggiornaNote(" + i + ")'>";
+    }
+}
+    
+
+
+function Inizializza()
+{
+    CaricaDati();
+    ScriviTabella();
+    CalcolaTotaleSpesa();
+}
+
+function AggiornaQuantita(iRigo)
+{
+    var qta = Number(
+        document.getElementById("qta_" + iRigo).value
+    );
+
+    if (!Number.isFinite(qta) || qta < 0)
+        qta = 0;
+
+    // PREZZO DELLA VARIANTE ATTUALMENTE SCELTA
+    var prezzo = Ordini[iRigo].PrezzoUnitario;
+
+    // CALCOLO DEL TOTALE
+    var totale = Number((qta * prezzo).toFixed(2));
+
+    // AGGIORNA I CAMPI
+    document.getElementById("qta_" + iRigo).value = qta;
+
+    document.getElementById("totale_" + iRigo).value =
+        totale.toFixed(2);
+
+    // AGGIORNA L'ARRAY
+    Ordini[iRigo].Quantita = qta;
+    Ordini[iRigo].Totale = totale;
+
+    // AGGIORNA IL TOTALE COMPLESSIVO
+    CalcolaTotaleSpesa();
+}
+
+function AggiornaNote(iRigo)
+{
+    var note = document.getElementById("note_" + iRigo).value;
+
+    // SALVA LA NOTA NELL'ARRAY
+    Ordini[iRigo].Note = note;
+}
+function AggiornaVariante(iRigo)
+{
+    var indice = Number(
+        document.getElementById("variante_" + iRigo).value
+    );
+
+    // SALVA LA VARIANTE SCELTA
+    Ordini[iRigo].VarianteScelta = indice;
+
+    // RECUPERA IL PREZZO DELLA VARIANTE
+    var prezzo = Ordini[iRigo].Varianti[indice].prezzo;
+
+    Ordini[iRigo].PrezzoUnitario = prezzo;
+
+    // AGGIORNA IL PREZZO VISUALIZZATO
+    document.getElementById("prezzo_" + iRigo).innerHTML =
+        prezzo.toFixed(2) + " €";
+
+    // RICALCOLA IL TOTALE DELLA RIGA
+    AggiornaQuantita(iRigo);
+}
+function StampaLista()
+{
+    var testo = "ELENCO ORDINI\n\n";
+    var totaleComplessivo = 0;
+
+    for (var i = 0; i < Ordini.length; i++)
+    {
+        var qta = Number(
+            document.getElementById("qta_" + i).value
+        );
+
+        var totale = Number(
+            document.getElementById("totale_" + i).value
+        );
+
+        var note = document.getElementById("note_" + i).value;
+
+		var variante = Ordini[i].Varianti[Ordini[i].VarianteScelta].nome;
+        // AGGIORNA L'ARRAY PRIMA DELLA STAMPA
+        Ordini[i].Quantita = qta;
+        Ordini[i].Totale = totale;
+        Ordini[i].Note = note;
+
+        testo += "Prodotto: " + Ordini[i].Prodotto + "\n";
+        testo += "Prezzo: " + Ordini[i].PrezzoUnitario + " €\n";
+        testo += "Quantita: " + qta + "\n";
+        testo += "Totale: " + totale.toFixed(2) + " €\n";
+        testo += "Note: " + note + "\n";
+		testo += "Variante: " + variante + "\n";
+        testo += "---------------------------\n";
+
+        totaleComplessivo += totale;
+    }
+
+    testo += "\nTOTALE COMPLESSIVO: " +
+             totaleComplessivo.toFixed(2) + " €";
+
+    var blob = new Blob([testo], {type: "text/plain;charset=utf-8"});
+    var link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "ElencoOrdini.txt";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(link.href);
+}
+
+function CalcolaTotaleSpesa()
+{
+    var totaleSpesa = 0;
+
+    for (var i = 0; i < Ordini.length; i++)
+    {
+        totaleSpesa += Ordini[i].Quantita * Ordini[i].PrezzoUnitario;
+    }
+
+    document.getElementById("totaleSpesa").innerHTML =
+        totaleSpesa.toFixed(2) + " €";
+}
+
+</script>
+</head>
+
+<body onload="Inizializza()">
+
+<table border="1" id="elenco">
+    <tr>
+        <td>PRODOTTO</td>
+		<td>VARIANTE</td>
+        <td>Prezzo</td>
+        <td>Quantità</td>
+        <td>TOTALE</td>
+        <td>NOTE</td>
+
+
+    </tr>
+</table>
+
+<input type="button"
+       value="STAMPA SPESA"
+       onclick="StampaLista()">
+
+<br><br>
+
+<h3>
+    Totale finale della spesa:
+    <span id="totaleSpesa">0.00 €</span>
+</h3>
+
+</body>
+</html>
